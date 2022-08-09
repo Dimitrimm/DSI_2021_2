@@ -10,33 +10,64 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'Startup Name Generator',
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Startup Name Generator'),
-        ),
-        body: const Center(
-          child: RandomWords(),
-        ),
-      ),
-    );
+      home: MainPage());
   }
 }
 
-class RandomWords extends StatefulWidget {
-  const RandomWords({Key? key}) : super(key: key);
+class MainPage extends StatefulWidget {
+  const MainPage({Key? key}) : super(key: key);
 
   @override
-  State<RandomWords> createState() => _RandomWordsState();
+  State<MainPage> createState() => _MainPageState();
 }
 
-class _RandomWordsState extends State<RandomWords> {
+class _MainPageState extends State<MainPage> {
+  final _suggestions = <WordPair>[];
+  final _biggerFont = const TextStyle(fontSize: 18);
+  String _viewType = "list";
+
   @override
   Widget build(BuildContext context) {
-    final _suggestions = <WordPair>[];
-    final _biggerFont = TextStyle(fontSize: 18);
-    final WordPair wordPair = WordPair.random();
+    return Scaffold(
+        appBar: _appBar(context), body: Center(child: _body(context)));
+  }
+
+  _appBar(BuildContext context) {
+    return AppBar(
+      title: const Text('Startup Name Generator'),
+      actions: _actionButton(context),
+    );
+  }
+
+  _actionButton(BuildContext context) {
+    return <Widget>[
+      IconButton(
+        onPressed: _setNewViewState,
+        icon: Icon(_viewType == "list" ? Icons.grid_view : Icons.list),
+      )
+    ];
+  }
+
+  _setNewViewState() {
+    if (_viewType == "list") {
+      _viewType = "grid";
+    } else {
+      _viewType = "list";
+    }
+    setState(() {});
+  }
+
+  _body(BuildContext context) {
+    if (_viewType == "list") {
+      return _listView();
+    } else {
+      return _gridView();
+    }
+  }
+
+  _listView() {
     return ListView.builder(
       padding: const EdgeInsets.all(16.0),
       itemBuilder: /*1*/ (context, i) {
@@ -52,6 +83,28 @@ class _RandomWordsState extends State<RandomWords> {
             style: _biggerFont,
           ),
         );
+      },
+    );
+  }
+
+  _gridView() {
+    return GridView.builder(
+      gridDelegate:
+          const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+      padding: const EdgeInsets.all(16.0),
+      itemBuilder: /*1*/ (context, i) {
+        ; /*3*/
+        if (i >= _suggestions.length) {
+          _suggestions.addAll(generateWordPairs().take(10)); /*4*/
+        }
+        return Card(
+            borderOnForeground: true,
+            child: Center(
+              child: Text(
+                _suggestions[i].asPascalCase,
+                style: _biggerFont,
+              ),
+            ));
       },
     );
   }
