@@ -80,36 +80,39 @@ class _MainPageState extends State<MainPage> {
         if (index >= _suggestions.length) {
           _suggestions.addAll(generateWordPairs().take(10)); /*4*/
         }
-        return ListTile(
-            title: Text(
-              _suggestions[index].asPascalCase,
-              style: _biggerFont,
-            ),
-            trailing: SizedBox(
-                width: 100,
-                child: Row(children: [
-                  IconButton(
-                      onPressed: () {
-                        _suggestions.removeAt(index);
-                        setState(() {});
-                      },
-                      icon: const Icon(Icons.delete_outline)),
-                  IconButton(
-                      onPressed: () {
-                        if (lovedOnes.contains(_suggestions[index])) {
-                          lovedOnes.remove(_suggestions[index]);
-                        } else {
-                          lovedOnes.add(_suggestions[index]);
-                        }
-                        setState(() {});
-                      },
-                      icon: Icon(
-                        lovedOnes.contains(_suggestions[index])
-                            ? Icons.thumb_up_alt_rounded
-                            : Icons.thumb_up_alt_outlined,
-                        color: Colors.blue[900],
-                      ))
-                ])));
+        return Card(
+            elevation: 3,
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Text(_suggestions[index].asPascalCase,
+                          style: _biggerFont)),
+                  Row(children: [
+                    IconButton(
+                        onPressed: () {
+                          _suggestions.removeAt(index);
+                          setState(() {});
+                        },
+                        icon: const Icon(Icons.delete_outline)),
+                    IconButton(
+                        onPressed: () {
+                          if (lovedOnes.contains(_suggestions[index])) {
+                            lovedOnes.remove(_suggestions[index]);
+                          } else {
+                            lovedOnes.add(_suggestions[index]);
+                          }
+                          setState(() {});
+                        },
+                        icon: Icon(
+                          lovedOnes.contains(_suggestions[index])
+                              ? Icons.thumb_up_alt_rounded
+                              : Icons.thumb_up_alt_outlined,
+                          color: Colors.blue[900],
+                        ))
+                  ])
+                ]));
       },
     );
   }
