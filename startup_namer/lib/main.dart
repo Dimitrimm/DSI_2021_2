@@ -1,5 +1,6 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
+import 'package:startup_namer/wordpair_repo.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,10 +23,15 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  final _suggestions = <WordPair>[];
+  final _suggestionsRepo = WordPairRepo();
   final _biggerFont = const TextStyle(fontSize: 18);
   final _lovedOnes = <WordPair>[];
   String _viewType = "list";
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,102 +78,97 @@ class _MainPageState extends State<MainPage> {
   }
 
   _listView(List<WordPair> lovedOnes) {
-    return ListView.builder(
+    List<WordPair> suggestions = _suggestionsRepo.namesList;
+    List<Widget> cardsList = <Widget>[];
+    for (WordPair i in suggestions) {
+      cardsList.add(Card(
+          elevation: 2,
+          child:
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Padding(
+                padding: const EdgeInsets.all(25),
+                child: Text(i.asPascalCase, style: _biggerFont)),
+            Row(children: [
+              IconButton(
+                  onPressed: () {
+                    suggestions.remove(i);
+                    setState(() {});
+                  },
+                  icon: const Icon(Icons.delete_outline)),
+              IconButton(
+                  onPressed: () {
+                    if (lovedOnes.contains(i)) {
+                      lovedOnes.remove(i);
+                    } else {
+                      lovedOnes.add(i);
+                    }
+                    setState(() {});
+                  },
+                  icon: Icon(
+                    lovedOnes.contains(i)
+                        ? Icons.thumb_up_alt_rounded
+                        : Icons.thumb_up_alt_outlined,
+                    color: Colors.blue[900],
+                  ))
+            ])
+          ])));
+    }
+    return ListView(
       padding: const EdgeInsets.all(16.0),
-      itemBuilder: /*1*/ (context, i) {
-        if (i.isOdd) return const Divider(); /*2*/
-        final index = i ~/ 2; /*3*/
-        if (index >= _suggestions.length) {
-          _suggestions.addAll(generateWordPairs().take(10)); /*4*/
-        }
-        return Card(
-            elevation: 3,
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Text(_suggestions[index].asPascalCase,
-                          style: _biggerFont)),
-                  Row(children: [
-                    IconButton(
-                        onPressed: () {
-                          _suggestions.removeAt(index);
-                          setState(() {});
-                        },
-                        icon: const Icon(Icons.delete_outline)),
-                    IconButton(
-                        onPressed: () {
-                          if (lovedOnes.contains(_suggestions[index])) {
-                            lovedOnes.remove(_suggestions[index]);
-                          } else {
-                            lovedOnes.add(_suggestions[index]);
-                          }
-                          setState(() {});
-                        },
-                        icon: Icon(
-                          lovedOnes.contains(_suggestions[index])
-                              ? Icons.thumb_up_alt_rounded
-                              : Icons.thumb_up_alt_outlined,
-                          color: Colors.blue[900],
-                        ))
-                  ])
-                ]));
-      },
+      children: cardsList,
     );
   }
 
   _gridView(List<WordPair> lovedOnes) {
-    return GridView.builder(
+    List<Widget> cardsList = <Widget>[];
+    List<WordPair> suggestions = _suggestionsRepo.namesList;
+    for (WordPair i in suggestions) {
+      cardsList.add(Card(
+          borderOnForeground: true,
+          child: Padding(
+              padding: const EdgeInsets.all(5),
+              child: Stack(children: [
+                Center(
+                  child: Text(
+                    i.asPascalCase,
+                    style: _biggerFont,
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.topRight,
+                  child: IconButton(
+                      onPressed: () {
+                        if (lovedOnes.contains(i)) {
+                          lovedOnes.remove(i);
+                        } else {
+                          lovedOnes.add(i);
+                        }
+                        setState(() {});
+                      },
+                      icon: Icon(
+                        lovedOnes.contains(i)
+                            ? Icons.thumb_up_alt_rounded
+                            : Icons.thumb_up_alt_outlined,
+                        color: Colors.blue[900],
+                      )),
+                ),
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: IconButton(
+                    onPressed: () {
+                      suggestions.remove(i);
+                      setState(() {});
+                    },
+                    icon: const Icon(Icons.delete_outline),
+                  ),
+                )
+              ]))));
+    }
+    return GridView(
       gridDelegate:
           const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
       padding: const EdgeInsets.all(16.0),
-      itemBuilder: /*1*/ (context, i) {
-        /*3*/
-        if (i >= _suggestions.length) {
-          _suggestions.addAll(generateWordPairs().take(10)); /*4*/
-        }
-        return Card(
-            borderOnForeground: true,
-            child: Padding(
-                padding: const EdgeInsets.all(5),
-                child: Stack(children: [
-                  Center(
-                    child: Text(
-                      _suggestions[i].asPascalCase,
-                      style: _biggerFont,
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: IconButton(
-                        onPressed: () {
-                          if (lovedOnes.contains(_suggestions[i])) {
-                            lovedOnes.remove(_suggestions[i]);
-                          } else {
-                            lovedOnes.add(_suggestions[i]);
-                          }
-                          setState(() {});
-                        },
-                        icon: Icon(
-                          lovedOnes.contains(_suggestions[i])
-                              ? Icons.thumb_up_alt_rounded
-                              : Icons.thumb_up_alt_outlined,
-                          color: Colors.blue[900],
-                        )),
-                  ),
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: IconButton(
-                      onPressed: () {
-                        _suggestions.removeAt(i);
-                        setState(() {});
-                      },
-                      icon: const Icon(Icons.delete_outline),
-                    ),
-                  )
-                ])));
-      },
+      children: cardsList,
     );
   }
 }
