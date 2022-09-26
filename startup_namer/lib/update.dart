@@ -14,13 +14,21 @@ class _UpdateViewState extends State<UpdateView> {
   var txc2 = TextEditingController();
   late WordPairMod pairInUpdate;
   late WordPairRepo pairRepo;
+  bool isUpdate = true;
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
-    pairRepo = args[0];
-    pairInUpdate = pairRepo.namesList[args[1]];
-    txc1.text = pairInUpdate.firstWord;
-    txc2.text = pairInUpdate.secondWord;
+    try {
+      final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+      pairRepo = args[0];
+      pairInUpdate = pairRepo.namesList[args[1]];
+      txc1.text = pairInUpdate.firstWord;
+      txc2.text = pairInUpdate.secondWord;
+    } catch (e) {
+      pairRepo = ModalRoute.of(context)!.settings.arguments as WordPairRepo;
+      isUpdate = false;
+      txc1.text = '';
+      txc2.text = '';
+    }
 
     return Scaffold(
       appBar: _appBar(),
@@ -65,10 +73,14 @@ class _UpdateViewState extends State<UpdateView> {
                   ))),
           GestureDetector(
               onTap: () {
-                pairInUpdate.firstWord = txc1.text;
-                pairInUpdate.secondWord = txc2.text;
+                if (isUpdate) {
+                  pairInUpdate.firstWord = txc1.text;
+                  pairInUpdate.secondWord = txc2.text;
+                } else {
+                  pairRepo.namesList
+                      .insert(0, WordPairMod(txc1.text, txc2.text));
+                }
                 Navigator.pushNamed(context, 'home', arguments: pairRepo);
-                // arguments:
               },
               child: SizedBox(
                   width: double.infinity,

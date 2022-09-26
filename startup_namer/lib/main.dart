@@ -43,8 +43,10 @@ class _MainPageState extends State<MainPage> {
       appBar: _appBar(),
       body: Center(child: _body()),
       floatingActionButton: FloatingActionButton(
-          onPressed: _setNewViewState,
-          child: Icon(_viewType == "list" ? Icons.grid_view : Icons.list)),
+          onPressed: () {
+            Navigator.pushNamed(context, 'update', arguments: _suggestionsRepo);
+          },
+          child: const Icon(Icons.plus_one)),
     );
   }
 
@@ -139,6 +141,7 @@ class _MainPageState extends State<MainPage> {
                 arguments: <dynamic>[_suggestionsRepo, suggestions.indexOf(i)]);
           },
           child: Card(
+              elevation: 3,
               borderOnForeground: true,
               child: Padding(
                   padding: const EdgeInsets.all(5),
